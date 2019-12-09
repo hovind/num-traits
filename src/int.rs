@@ -11,7 +11,7 @@ use {Num, NumCast};
 /// `u32`, `isize`, `i128`, ...). It inherits the basic numeric traits and extends them with
 /// bitwise operators and non-wrapping arithmetic.
 ///
-/// The trait explicitly inherits `Copy`, `Eq`, `Ord`, and `Sized`. The intention is that all
+/// The trait explicitly inherits `Clone`, `Eq`, `Ord`, and `Sized`. The intention is that all
 /// types implementing this trait behave like primitive types that are passed by value by default
 /// and behave like builtin integers. Furthermore, the types are expected to expose the integer
 /// value in binary representation and support bitwise operators. The standard bitwise operations
@@ -33,7 +33,7 @@ use {Num, NumCast};
 /// standard library.
 pub trait PrimInt:
     Sized
-    + Copy
+    + Clone
     + Num
     + NumCast
     + Bounded

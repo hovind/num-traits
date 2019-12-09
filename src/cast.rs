@@ -731,9 +731,9 @@ impl<T: NumCast> NumCast for Wrapping<T> {
 /// let x: f32 = (1e300f64).as_(); // UB
 /// ```
 ///
-pub trait AsPrimitive<T>: 'static + Copy
+pub trait AsPrimitive<T>: 'static + Clone
 where
-    T: 'static + Copy,
+    T: 'static + Clone,
 {
     /// Convert a value to another, using the `as` operator.
     fn as_(self) -> T;

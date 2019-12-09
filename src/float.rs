@@ -13,7 +13,7 @@ use libm;
 /// Generic trait for floating point numbers that works with `no_std`.
 ///
 /// This trait implements a subset of the `Float` trait.
-pub trait FloatCore: Num + NumCast + Neg<Output = Self> + PartialOrd + Copy {
+pub trait FloatCore: Num + NumCast + Neg<Output = Self> + PartialOrd + Clone {
     /// Returns positive infinity.
     ///
     /// # Examples
@@ -218,7 +218,7 @@ pub trait FloatCore: Num + NumCast + Neg<Output = Self> + PartialOrd + Copy {
     /// ```
     #[inline]
     fn is_finite(self) -> bool {
-        !(self.is_nan() || self.is_infinite())
+        !(self.clone().is_nan() || self.is_infinite())
     }
 
     /// Returns `true` if the number is neither zero, infinite, subnormal or NaN.
@@ -292,8 +292,8 @@ pub trait FloatCore: Num + NumCast + Neg<Output = Self> + PartialOrd + Copy {
     /// ```
     #[inline]
     fn floor(self) -> Self {
-        let f = self.fract();
-        if f.is_nan() || f.is_zero() {
+        let f = self.clone().fract();
+        if f.clone().is_nan() || f.is_zero() {
             self
         } else if self < Self::zero() {
             self - f - Self::one()
@@ -326,8 +326,8 @@ pub trait FloatCore: Num + NumCast + Neg<Output = Self> + PartialOrd + Copy {
     /// ```
     #[inline]
     fn ceil(self) -> Self {
-        let f = self.fract();
-        if f.is_nan() || f.is_zero() {
+        let f = self.clone().fract();
+        if f.clone().is_nan() || f.is_zero() {
             self
         } else if self > Self::zero() {
             self - f + Self::one()
@@ -361,8 +361,8 @@ pub trait FloatCore: Num + NumCast + Neg<Output = Self> + PartialOrd + Copy {
     fn round(self) -> Self {
         let one = Self::one();
         let h = Self::from(0.5).expect("Unable to cast from 0.5");
-        let f = self.fract();
-        if f.is_nan() || f.is_zero() {
+        let f = self.clone().fract();
+        if f.clone().is_nan() || f.is_zero() {
             self
         } else if self > Self::zero() {
             if f < h {
@@ -371,7 +371,7 @@ pub trait FloatCore: Num + NumCast + Neg<Output = Self> + PartialOrd + Copy {
                 self - f + one
             }
         } else {
-            if -f < h {
+            if -f.clone() < h {
                 self - f
             } else {
                 self - f - one
@@ -403,8 +403,8 @@ pub trait FloatCore: Num + NumCast + Neg<Output = Self> + PartialOrd + Copy {
     /// ```
     #[inline]
     fn trunc(self) -> Self {
-        let f = self.fract();
-        if f.is_nan() {
+        let f = self.clone().fract();
+        if f.clone().is_nan() {
             self
         } else {
             self - f
@@ -464,10 +464,10 @@ pub trait FloatCore: Num + NumCast + Neg<Output = Self> + PartialOrd + Copy {
     /// ```
     #[inline]
     fn abs(self) -> Self {
-        if self.is_sign_positive() {
+        if self.clone().is_sign_positive() {
             return self;
         }
-        if self.is_sign_negative() {
+        if self.clone().is_sign_negative() {
             return -self;
         }
         Self::nan()
@@ -498,7 +498,7 @@ pub trait FloatCore: Num + NumCast + Neg<Output = Self> + PartialOrd + Copy {
     /// ```
     #[inline]
     fn signum(self) -> Self {
-        if self.is_nan() {
+        if self.clone().is_nan() {
             Self::nan()
         } else if self.is_sign_negative() {
             -Self::one()
@@ -583,10 +583,10 @@ pub trait FloatCore: Num + NumCast + Neg<Output = Self> + PartialOrd + Copy {
     /// ```
     #[inline]
     fn min(self, other: Self) -> Self {
-        if self.is_nan() {
+        if self.clone().is_nan() {
             return other;
         }
-        if other.is_nan() {
+        if other.clone().is_nan() {
             return self;
         }
         if self < other {
@@ -617,10 +617,10 @@ pub trait FloatCore: Num + NumCast + Neg<Output = Self> + PartialOrd + Copy {
     /// ```
     #[inline]
     fn max(self, other: Self) -> Self {
-        if self.is_nan() {
+        if self.clone().is_nan() {
             return other;
         }
-        if other.is_nan() {
+        if other.clone().is_nan() {
             return self;
         }
         if self > other {
@@ -638,7 +638,7 @@ pub trait FloatCore: Num + NumCast + Neg<Output = Self> + PartialOrd + Copy {
     /// use num_traits::float::FloatCore;
     /// use std::{f32, f64};
     ///
-    /// fn check<T: FloatCore>(x: T, y: T) {
+    /// fn check<T: FloatCore + Copy>(x: T, y: T) {
     ///     assert!(x.recip() == y);
     ///     assert!(y.recip() == x);
     /// }
@@ -902,7 +902,7 @@ impl FloatCore for f64 {
 ///
 /// This trait is only available with the `std` feature, or with the `libm` feature otherwise.
 #[cfg(any(feature = "std", feature = "libm"))]
-pub trait Float: Num + Copy + NumCast + PartialOrd + Neg<Output = Self> {
+pub trait Float: Num + Clone + NumCast + PartialOrd + Neg<Output = Self> {
     /// Returns the `NaN` value.
     ///
     /// ```
